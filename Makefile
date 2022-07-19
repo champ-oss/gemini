@@ -26,4 +26,4 @@ fmt:
 
 tidy:
 	cd src && go mod tidy
-	cd terraform/test/src && go mod tidy
+	cd terraform/test && go mod tidy
