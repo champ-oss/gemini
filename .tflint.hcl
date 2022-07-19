@@ -1,12 +1,12 @@
 plugin "champtitles" {
   enabled = true
-  version = "0.4.0"
-  source  = "github.com/champtitles/tflint-ruleset-champtitles"
+  version = "1.0.0"
+  source  = "github.com/champ-oss/tflint-ruleset-champtitles"
 }
 
 plugin "aws" {
   enabled = true
-  version = "0.9.0"
+  version = "0.13.3"
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
 }
 
