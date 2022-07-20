@@ -164,7 +164,7 @@ variable "grafana_hostname" {
 variable "use_terraform_api_key" {
   description = "Use API key to authenticate with the Grafana Terraform Provider instead of basic auth"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "terraform_api_key" {
