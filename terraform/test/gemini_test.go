@@ -18,10 +18,13 @@ func TestGemini(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := &terraform.Options{
-		TerraformDir:  "../",
+		TerraformDir:  "../examples/complete",
 		BackendConfig: map[string]interface{}{},
 		Vars: map[string]interface{}{
-			"docker_tag": os.Getenv("GITHUB_SHA"),
+			"docker_tag":             os.Getenv("GITHUB_SHA"),
+			"github_app_id":          os.Getenv("APP_ID"),
+			"github_installation_id": os.Getenv("INSTALLATION_ID"),
+			"github_pem":             os.Getenv("PEM"),
 		},
 	}
 	defer destroy(t, terraformOptions)
