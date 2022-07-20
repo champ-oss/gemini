@@ -1,3 +1,5 @@
+data "aws_region" "this" {}
+
 locals {
   image_app = "champtitles/gemini:${var.docker_tag}"
 

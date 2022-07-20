@@ -1,3 +1,8 @@
+output "region" {
+  description = "AWS Region"
+  value       = module.this.region
+}
+
 output "db_name" {
   description = "Name of database"
   value       = module.this.db_name

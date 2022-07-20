@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	Region            = "us-east-1"
 	RetryDelaySeconds = 30
 	RetryAttempts     = 20
 )
@@ -40,11 +39,10 @@ func getAWSSession() *session.Session {
 }
 
 // countRecords gets a count of records from the table and compares it to the count expected
-func countRecords(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
+func countRecords(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
 	for i := 0; ; i++ {
 		fmt.Printf("Getting count of rows in %s table for %s/%s\n", table, owner, repo)
-		svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
-		output, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+		output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
 			Database:    aws.String(dbName),
 			ResourceArn: aws.String(dbArn),
 			SecretArn:   aws.String(dbSecretsArn),
@@ -70,16 +68,13 @@ func countRecords(awsSession *session.Session, dbName string, dbArn string, dbSe
 }
 
 // checkForEmptyFields checks for any records which have empty fields
-func checkForEmptyFields(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string) error {
+func checkForEmptyFields(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string) error {
 	fmt.Printf("Checking for count of records with empty fields in %s table\n", table)
-	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
-
 	query := fmt.Sprintf(`SELECT count(*) FROM %s
                                  WHERE owner IS NULL OR owner = ''
                                  OR repo IS NULL OR repo = ''
                                  OR branch IS NULL OR branch = ''`, table)
-
-	output, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+	output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
 		Database:    aws.String(dbName),
 		ResourceArn: aws.String(dbArn),
 		SecretArn:   aws.String(dbSecretsArn),
@@ -97,13 +92,10 @@ func checkForEmptyFields(awsSession *session.Session, dbName string, dbArn strin
 }
 
 // dropTable drops a table from the database
-func dropTable(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string) error {
+func dropTable(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string) error {
 	fmt.Printf("Dropping table: %s\n", table)
-	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
-
 	query := fmt.Sprintf(`drop table if exists %s`, table)
-
-	_, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+	_, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
 		Database:    aws.String(dbName),
 		ResourceArn: aws.String(dbArn),
 		SecretArn:   aws.String(dbSecretsArn),
@@ -115,15 +107,12 @@ func dropTable(awsSession *session.Session, dbName string, dbArn string, dbSecre
 	return nil
 }
 
-func validateReruns(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
+func validateReruns(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
 	fmt.Printf("Checking for count of records with empty fields in %s table\n", table)
-	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
-
 	query := fmt.Sprintf(`SELECT count(*) FROM %s
                                  WHERE node_id IN (SELECT node_id FROM %s WHERE run_attempt > 1)
                                  AND owner = "%s" AND repo = "%s"`, table, table, owner, repo)
-
-	output, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+	output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
 		Database:    aws.String(dbName),
 		ResourceArn: aws.String(dbArn),
 		SecretArn:   aws.String(dbSecretsArn),
@@ -141,10 +130,9 @@ func validateReruns(awsSession *session.Session, dbName string, dbArn string, db
 }
 
 // deleteRecentCommits deletes a specific number of records from the table
-func deleteRecentCommits(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, rows int) error {
+func deleteRecentCommits(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, rows int) error {
 	fmt.Printf("Deleting most recent %d rows in %s table for %s/%s\n", rows, table, owner, repo)
-	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
-	_, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+	_, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
 		Database:    aws.String(dbName),
 		ResourceArn: aws.String(dbArn),
 		SecretArn:   aws.String(dbSecretsArn),

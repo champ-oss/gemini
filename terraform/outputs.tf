@@ -1,3 +1,8 @@
+output "region" {
+  description = "AWS Region"
+  value       = data.aws_region.this.name
+}
+
 output "db_name" {
   description = "Name of database"
   value       = aws_rds_cluster.this.database_name

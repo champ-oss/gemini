@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/rdsdataservice"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -29,16 +31,19 @@ func TestGemini(t *testing.T) {
 	}
 	defer destroy(t, terraformOptions)
 	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	region := terraform.Output(t, terraformOptions, "region")
+	awsSession := getAWSSession()
+	rds := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(region))
 
-	commitsTest(t, terraformOptions)
+	commitsTest(t, terraformOptions, rds)
 	grafanaTest(t, terraformOptions)
-	actionsTest(t, terraformOptions)
-	terraformrefsTest(t, terraformOptions)
-	pullrequestsTest(t, terraformOptions)
+	actionsTest(t, terraformOptions, rds)
+	terraformrefsTest(t, terraformOptions, rds)
+	pullrequestsTest(t, terraformOptions, rds)
 }
 
 // Validate that the table for commits is populated successfully
-func commitsTest(t *testing.T, options *terraform.Options) {
+func commitsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.RDSDataService) {
 	dbName := terraform.Output(t, options, "db_name")
 	dbArn := terraform.Output(t, options, "db_arn")
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
@@ -48,20 +53,19 @@ func commitsTest(t *testing.T, options *terraform.Options) {
 	repo := "tflint-ruleset-champtitles"
 	expectedRows := 15
 
-	awsSess := getAWSSession()
-	defer dropTable(awsSess, dbName, dbArn, dbSecretsArn, table)
+	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
 	t.Logf("Checking that the %s table is successfully fully populated on first run", table)
-	assert.Nil(t, countRecords(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
+	assert.Nil(t, countRecords(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
 
 	t.Log("Testing removing some of the most recent commits from the DB so the process will sync them again")
-	assert.Nil(t, deleteRecentCommits(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, 5))
+	assert.Nil(t, deleteRecentCommits(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, 5))
 
 	t.Log("Checking that commits are fully synced again after the process re-runs")
-	assert.Nil(t, countRecords(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
+	assert.Nil(t, countRecords(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
 
 	t.Log("Checking that no records have empty fields")
-	assert.Nil(t, checkForEmptyFields(awsSess, dbName, dbArn, dbSecretsArn, table))
+	assert.Nil(t, checkForEmptyFields(rds, dbName, dbArn, dbSecretsArn, table))
 }
 
 // Validate that grafana is working correctly
@@ -109,7 +113,7 @@ func grafanaTest(t *testing.T, options *terraform.Options) {
 }
 
 // Validate that the table for workflow runs is populated successfully
-func actionsTest(t *testing.T, options *terraform.Options) {
+func actionsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.RDSDataService) {
 	dbName := terraform.Output(t, options, "db_name")
 	dbArn := terraform.Output(t, options, "db_arn")
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
@@ -119,21 +123,20 @@ func actionsTest(t *testing.T, options *terraform.Options) {
 	repo := "tflint-ruleset-champtitles"
 	expectedRows := 218
 
-	awsSess := getAWSSession()
-	defer dropTable(awsSess, dbName, dbArn, dbSecretsArn, table)
+	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
 	t.Logf("Checking that the %s table is successfully fully populated on first run", table)
-	assert.Nil(t, countRecords(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
+	assert.Nil(t, countRecords(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
 
 	t.Log("Checking that no records have empty fields")
-	assert.Nil(t, checkForEmptyFields(awsSess, dbName, dbArn, dbSecretsArn, table))
+	assert.Nil(t, checkForEmptyFields(rds, dbName, dbArn, dbSecretsArn, table))
 
 	t.Log("Checking workflow reruns in the database")
-	assert.Nil(t, validateReruns(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, 2))
+	assert.Nil(t, validateReruns(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, 2))
 }
 
 // Validate that the table for terraform module references is populated successfully
-func terraformrefsTest(t *testing.T, options *terraform.Options) {
+func terraformrefsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.RDSDataService) {
 	dbName := terraform.Output(t, options, "db_name")
 	dbArn := terraform.Output(t, options, "db_arn")
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
@@ -143,18 +146,17 @@ func terraformrefsTest(t *testing.T, options *terraform.Options) {
 	repo := "tflint-ruleset-champtitles"
 	expectedRows := 21
 
-	awsSess := getAWSSession()
-	defer dropTable(awsSess, dbName, dbArn, dbSecretsArn, table)
+	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
 	t.Logf("Checking that the %s table is successfully fully populated on first run", table)
-	assert.Nil(t, countRecords(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
+	assert.Nil(t, countRecords(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
 
 	t.Log("Checking that no records have empty fields")
-	assert.Nil(t, checkForEmptyFields(awsSess, dbName, dbArn, dbSecretsArn, table))
+	assert.Nil(t, checkForEmptyFields(rds, dbName, dbArn, dbSecretsArn, table))
 }
 
 // Validate that the table for pull request commits is populated successfully
-func pullrequestsTest(t *testing.T, options *terraform.Options) {
+func pullrequestsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.RDSDataService) {
 	dbName := terraform.Output(t, options, "db_name")
 	dbArn := terraform.Output(t, options, "db_arn")
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
@@ -164,11 +166,10 @@ func pullrequestsTest(t *testing.T, options *terraform.Options) {
 	repo := "tflint-ruleset-champtitles"
 	expectedRows := 26
 
-	awsSess := getAWSSession()
-	defer dropTable(awsSess, dbName, dbArn, dbSecretsArn, table)
+	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
 	t.Logf("Checking that the %s table is successfully fully populated on first run", table)
-	assert.Nil(t, countRecords(awsSess, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
+	assert.Nil(t, countRecords(rds, dbName, dbArn, dbSecretsArn, table, owner, repo, expectedRows))
 }
 
 func destroy(t *testing.T, options *terraform.Options) {
