@@ -174,12 +174,12 @@ func pullrequestsTest(t *testing.T, options *terraform.Options) {
 func destroy(t *testing.T, options *terraform.Options) {
 
 	t.Log("removing grafana dashboard resources from state")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_data_source.this")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_dashboard.status")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_dashboard.deployment_frequency")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_dashboard.change_failures")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_dashboard.lead_time_for_changes")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "grafana_dashboard.time_to_restore")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_data_source.this")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.status")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.deployment_frequency")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.change_failures")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.lead_time_for_changes")
+	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.time_to_restore")
 
 	t.Log("Running Terraform Destroy")
 	terraform.Destroy(t, options)
