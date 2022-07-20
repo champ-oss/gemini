@@ -14,6 +14,20 @@ const (
 	RetryAttempts     = 20
 )
 
+type GrafanaQuery struct {
+	IntervalMs    int64  `json:"intervalMs"`
+	MaxDataPoints int    `json:"maxDataPoints"`
+	DatasourceId  int    `json:"datasourceId"`
+	RawSql        string `json:"rawSql"`
+	Format        string `json:"format"`
+}
+
+type GrafanaQueryRequest struct {
+	From    string          `json:"from"`
+	To      string          `json:"to"`
+	Queries []*GrafanaQuery `json:"queries"`
+}
+
 // getAWSSession Logs in to AWS and return a session
 func getAWSSession() *session.Session {
 	sess, err := session.NewSessionWithOptions(session.Options{
@@ -94,6 +108,47 @@ func dropTable(awsSession *session.Session, dbName string, dbArn string, dbSecre
 		ResourceArn: aws.String(dbArn),
 		SecretArn:   aws.String(dbSecretsArn),
 		Sql:         aws.String(query),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateReruns(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
+	fmt.Printf("Checking for count of records with empty fields in %s table\n", table)
+	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
+
+	query := fmt.Sprintf(`SELECT count(*) FROM %s
+                                 WHERE node_id IN (SELECT node_id FROM %s WHERE run_attempt > 1)
+                                 AND owner = "%s" AND repo = "%s"`, table, table, owner, repo)
+
+	output, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+		Database:    aws.String(dbName),
+		ResourceArn: aws.String(dbArn),
+		SecretArn:   aws.String(dbSecretsArn),
+		Sql:         aws.String(query),
+	})
+	if err != nil {
+		return err
+	}
+	count := int(*output.Records[0][0].LongValue)
+	fmt.Println("Count: ", count)
+	if count < minExpected {
+		return fmt.Errorf("found %d rerun records. expected %d", count, minExpected)
+	}
+	return nil
+}
+
+// deleteRecentCommits deletes a specific number of records from the table
+func deleteRecentCommits(awsSession *session.Session, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, rows int) error {
+	fmt.Printf("Deleting most recent %d rows in %s table for %s/%s\n", rows, table, owner, repo)
+	svc := rdsdataservice.New(awsSession, aws.NewConfig().WithRegion(Region))
+	_, err := svc.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
+		Database:    aws.String(dbName),
+		ResourceArn: aws.String(dbArn),
+		SecretArn:   aws.String(dbSecretsArn),
+		Sql:         aws.String(fmt.Sprintf("DELETE FROM %s WHERE OWNER = '%s' AND repo = '%s' ORDER BY committer_date DESC LIMIT %d;", table, owner, repo, rows)),
 	})
 	if err != nil {
 		return err
