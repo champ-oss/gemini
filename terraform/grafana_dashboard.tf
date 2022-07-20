@@ -1,4 +1,5 @@
 data "aws_kms_secrets" "this" {
+  count = var.use_terraform_api_key ? 1 : 0
   secret {
     name    = "terraform_api_key"
     payload = var.terraform_api_key
@@ -7,7 +8,7 @@ data "aws_kms_secrets" "this" {
 
 provider "grafana" {
   url     = "https://${local.grafana_dns}"
-  auth    = var.use_terraform_api_key ? data.aws_kms_secrets.this.plaintext["terraform_api_key"] : "${var.grafana_username}:${random_password.grafana.result}"
+  auth    = var.use_terraform_api_key ? data.aws_kms_secrets.this[0].plaintext["terraform_api_key"] : "${var.grafana_username}:${random_password.grafana.result}"
   retries = 100
 }
 

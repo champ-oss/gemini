@@ -19,9 +19,7 @@ locals {
     GF_AUTH_GITHUB_CLIENT_ID             = var.grafana_github_client_id
   }
 
-  kms_secrets_grafana = {
-    GF_AUTH_GITHUB_CLIENT_SECRET = var.grafana_github_client_secret != "" ? var.grafana_github_client_secret : null
-  }
+  gf_auth_github_client_secret = var.grafana_github_client_secret != "" ? { GF_AUTH_GITHUB_CLIENT_SECRET = var.grafana_github_client_secret } : {}
 
   grafana_dns = var.grafana_hostname != null ? "${var.grafana_hostname}.${var.domain}" : "grafana-${random_string.identifier.result}.${var.domain}"
 }
@@ -61,7 +59,7 @@ module "grafana" {
   memory                            = "1024"
   environment                       = local.config_grafana
   secrets                           = local.secrets
-  kms_secrets                       = local.kms_secrets_grafana
+  kms_secrets                       = merge(local.gf_auth_github_client_secret)
   desired_count                     = var.desired_count_grafana
   health_check_grace_period_seconds = 300
   enable_execute_command            = true
