@@ -20,6 +20,9 @@ env:
   MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
   MONGODB_ATLAS_ORG: ${{ secrets.MONGODB_ATLAS_ORG }}
   SLACK_URL: ${{ secrets.SLACK_URL }}
+  APP_ID: ${{ secrets.APP_ID }}
+  INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
+  PEM: ${{ secrets.PEM }}
 
 defaults:
   run:
