@@ -1,5 +1,5 @@
 locals {
-  image_app = "champtitles/gemini:${var.commit_sha}"
+  image_app = "champtitles/gemini:${var.docker_tag}"
 
   config_app = {
     DEBUG                  = var.debug ? "true" : "false"
