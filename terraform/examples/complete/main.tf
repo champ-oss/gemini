@@ -60,6 +60,7 @@ module "this" {
   vpc_id                 = module.vpc.vpc_id
   domain                 = data.aws_route53_zone.this.name
   zone_id                = data.aws_route53_zone.this.zone_id
+  protect                = false
   repos = [
     "champtitles/tflint-ruleset-champtitles"
   ]
