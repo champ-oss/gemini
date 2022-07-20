@@ -20,7 +20,7 @@ locals {
   }
 
   kms_secrets_grafana = {
-    GF_AUTH_GITHUB_CLIENT_SECRET = var.grafana_github_client_secret
+    GF_AUTH_GITHUB_CLIENT_SECRET = var.grafana_github_client_secret != "" ? var.grafana_github_client_secret : null
   }
 
   grafana_dns = var.grafana_hostname != null ? "${var.grafana_hostname}.${var.domain}" : "grafana-${random_string.identifier.result}.${var.domain}"
