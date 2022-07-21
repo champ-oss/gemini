@@ -51,7 +51,7 @@ func commitsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.R
 	table := "commits"
 	owner := "champ-oss"
 	repo := "terraform-env-template"
-	expectedRows := 6
+	expectedRows := 8
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
@@ -144,7 +144,7 @@ func terraformrefsTest(t *testing.T, options *terraform.Options, rds *rdsdataser
 	table := "terraform_refs"
 	owner := "champ-oss"
 	repo := "terraform-env-template"
-	expectedRows := 21
+	expectedRows := 3
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
@@ -164,7 +164,7 @@ func pullrequestsTest(t *testing.T, options *terraform.Options, rds *rdsdataserv
 	table := "pull_request_commits"
 	owner := "champ-oss"
 	repo := "terraform-env-template"
-	expectedRows := 26
+	expectedRows := 3
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
