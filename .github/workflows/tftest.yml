@@ -1,0 +1,50 @@
+name: tftest
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+
+concurrency: tftest
+
+env:
+  TF_INPUT: false
+  TF_IN_AUTOMATION: true
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
+  MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
+  MONGODB_ATLAS_ORG: ${{ secrets.MONGODB_ATLAS_ORG }}
+  SLACK_URL: ${{ secrets.SLACK_URL }}
+  APP_ID: ${{ secrets.APP_ID }}
+  INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
+  PEM: ${{ secrets.PEM }}
+
+defaults:
+  run:
+    shell: bash
+    working-directory: terraform/test
+
+jobs:
+  tftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2.0.0
+        with:
+          terraform_version: 1.1.4
+          terraform_wrapper: false
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+
+      - name: Terratest
+        run: |
+          go mod download
+          go test -v -timeout 90m

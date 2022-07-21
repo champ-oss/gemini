@@ -1,0 +1,373 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 7,
+        "w": 15,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "content": "# Change Failures\n\n**Elite**: `0% to 15%`\n\n**High**: `16% to 30%`\n\n**Medium/Low**: `31% or more`\n\nSource: https://services.google.com/fh/files/misc/state-of-devops-2021.pdf\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  eval_date AS \"time\",\n  id\nFROM alert\nWHERE\n  $__timeFilter(eval_date)\nORDER BY eval_date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "type": "text"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 28,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 15
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 15,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  totals.repo, \n  IFNULL(sum(failures.count) / sum(totals.count) * 100, 0 ) as \"Change Failures\",\n  totals.time as time\nfrom (\n\tselect repo, name, sha, count(distinct(sha)) as count, cast(DATE_FORMAT(from_unixtime(run_updated_at), '%Y-%m-01T12:00:00Z') as datetime) as time \n\tfrom workflow_runs \n\twhere name like '%apply%' \n\tgroup by repo, name, sha, cast(DATE_FORMAT(from_unixtime(run_updated_at), '%Y-%m-01T12:00:00Z') as datetime)\n) as totals\nleft outer join\n(\n\tselect repo, name, sha, count(distinct(sha)) as count, cast(DATE_FORMAT(from_unixtime(run_updated_at), '%Y-%m-01T12:00:00Z') as datetime) as time \n\tfrom workflow_runs \n\twhere conclusion like '%failure%' \n\tand name like '%apply%' \n\tgroup by repo, name, sha, cast(DATE_FORMAT(from_unixtime(run_updated_at), '%Y-%m-01T12:00:00Z') as datetime)\n) as failures on failures.sha = totals.sha\ngroup by totals.repo, totals.time \norder by time\n",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Change Failure Rate",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "mappings": [
+            {
+              "options": {
+                "failure": {
+                  "color": "red",
+                  "index": 1
+                },
+                "success": {
+                  "color": "green",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "repo"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 176
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Attempts"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 193
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sha"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 353
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "conclusion"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 108
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 15,
+        "x": 0,
+        "y": 22
+      },
+      "id": 2,
+      "interval": "1M",
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  workflow_runs.repo,\n  workflow_runs.sha,\n  commits.message,\n  workflow_runs.conclusion,\n  count(workflow_runs.sha) as \"Attempts\",\n  from_unixtime(max(workflow_runs.run_updated_at)) as \"Time\"\nfrom workflow_runs, commits\nwhere workflow_runs.sha = commits.sha \nand name like '%apply%'\ngroup by workflow_runs.repo, workflow_runs.sha, commits.message, workflow_runs.conclusion\norder by workflow_runs.run_updated_at desc\n\n\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "All Change Failures",
+      "type": "table"
+    }
+  ],
+  "schemaVersion": 34,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Change Failures",
+  "uid": "mSeFZIBnk",
+  "version": 20,
+  "weekStart": ""
+}

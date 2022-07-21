@@ -1,0 +1,454 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 3,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 7,
+        "w": 15,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "content": "# Lead Time For Changes\n\n**Elite**: `Less Than 1 Hour`\n\n**High**: `Less Than 1 Week`\n\n**Medium**: `Less Than 1 Month`\n\n**Low**: `Longer Than 1 Month`\n\nSource: https://services.google.com/fh/files/misc/state-of-devops-2021.pdf\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  eval_date AS \"time\",\n  id\nFROM alert\nWHERE\n  $__timeFilter(eval_date)\nORDER BY eval_date",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "type": "text"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Lead Time",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 28,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "orange",
+                "value": 10080
+              },
+              {
+                "color": "red",
+                "value": 302400
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 15,
+        "x": 0,
+        "y": 7
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  commits.repo as \"Repo\",\n  cast(DATE_FORMAT(from_unixtime(workflow_runs.run_updated_at), '%Y-%m-01T12:00:00Z') as datetime) as time,\n  avg(((workflow_runs.run_updated_at - commits.committer_date) / 60)) as \"Lead Time\"\nfrom \n  (select repo, source_repo, sha, source_ref, min(run_updated_at) from terraform_refs where module_name not like '%config%' group by repo, source_repo, source_ref) as terraform_refs, \n  commits, \n  (select sha, min(run_updated_at) as run_updated_at from workflow_runs where name like '%apply%' group by sha) as workflow_runs\nwhere terraform_refs.sha = workflow_runs.sha\nand terraform_refs.source_ref = commits.sha\nand terraform_refs.repo like 'env-%'\ngroup by commits.repo, cast(DATE_FORMAT(from_unixtime(run_updated_at), '%Y-%m-01T12:00:00Z') as datetime)\norder by workflow_runs.run_updated_at asc;\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  commits.repo as \"Repo\",\n  cast(DATE_FORMAT(from_unixtime(workflow_runs.run_updated_at), '%Y-%m-01T12:00:00Z') as datetime) as time, \n  avg(((workflow_runs.run_updated_at - pull_request_commits.committer_date) / 60)) as \"Lead Time\"\nfrom \n  (select repo, merge_commit_sha, max(committer_date) as committer_date from pull_request_commits group by repo, merge_commit_sha) as pull_request_commits,\n  (select sha, min(run_updated_at) as run_updated_at from workflow_runs where name like '%apply%' group by sha) as workflow_runs,\n  commits\nwhere workflow_runs.sha = pull_request_commits.merge_commit_sha\nand workflow_runs.sha = commits.sha\ngroup by commits.repo, cast(DATE_FORMAT(from_unixtime(workflow_runs.run_updated_at), '%Y-%m-01T12:00:00Z') as datetime)\norder by workflow_runs.run_updated_at asc",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Lead Time For Changes (Monthly Avg)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "orange",
+                "value": 10080
+              },
+              {
+                "color": "red",
+                "value": 302400
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Lead Time"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              },
+              {
+                "id": "custom.width",
+                "value": 209
+              },
+              {
+                "id": "unit",
+                "value": "m"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Repo"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 175
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Commit SHA"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 348
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Updated"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 202
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployed to Prod"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 217
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 15,
+        "x": 0,
+        "y": 21
+      },
+      "id": 2,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 0,
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Deployed to Prod"
+          }
+        ]
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  commits.repo as \"Repo\",\n  terraform_refs.source_ref as \"Commit SHA\", \n  FROM_UNIXTIME(commits.committer_date) as \"Updated\",\n  FROM_UNIXTIME(workflow_runs.run_updated_at) as \"Deployed to Prod\",\n  ((workflow_runs.run_updated_at - commits.committer_date) / 60) as \"Lead Time\"\nfrom \n  (select repo, source_repo, sha, source_ref, min(run_updated_at) from terraform_refs where module_name not like '%config%' group by repo, source_repo, source_ref) as terraform_refs, \n  commits, \n  (select sha, min(run_updated_at) as run_updated_at from workflow_runs where name like '%apply%' group by sha) as workflow_runs\nwhere terraform_refs.sha = workflow_runs.sha\nand terraform_refs.source_ref = commits.sha\nand terraform_refs.repo like 'env-%'\norder by workflow_runs.run_updated_at desc;\n\n\n\n\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "7RhhkJsnz"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  commits.repo as \"Repo\",\n  workflow_runs.sha as \"Commit SHA\", \n  from_unixtime(pull_request_commits.committer_date)  as \"Updated\",\n  from_unixtime(workflow_runs.run_updated_at)as \"Deployed to Prod\",\n  ((workflow_runs.run_updated_at - pull_request_commits.committer_date) / 60) as \"Lead Time\"\nfrom \n  (select repo, merge_commit_sha, max(committer_date) as committer_date from pull_request_commits group by repo, merge_commit_sha) as pull_request_commits,\n  (select sha, min(run_updated_at) as run_updated_at from workflow_runs where name like '%apply%' group by sha) as workflow_runs,\n  commits\nwhere workflow_runs.sha = pull_request_commits.merge_commit_sha\nand workflow_runs.sha = commits.sha\norder by workflow_runs.run_updated_at desc",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "alert",
+          "timeColumn": "eval_date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Lead Time For Changes",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "schemaVersion": 34,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-7M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Lead Time For Changes",
+  "uid": "iUY5WIBnz",
+  "version": 20,
+  "weekStart": ""
+}
