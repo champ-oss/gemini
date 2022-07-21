@@ -61,7 +61,10 @@ module "this" {
   domain                 = data.aws_route53_zone.this.name
   zone_id                = data.aws_route53_zone.this.zone_id
   protect                = false
+  grafana_force_oauth    = false
+  use_terraform_api_key  = false
+  minutes_between_checks = 0.25
   repos = [
-    "champtitles/tflint-ruleset-champtitles"
+    "champ-oss/terraform-env-template"
   ]
 }

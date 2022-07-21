@@ -49,9 +49,9 @@ func commitsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.R
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
 
 	table := "commits"
-	owner := "champtitles"
-	repo := "tflint-ruleset-champtitles"
-	expectedRows := 15
+	owner := "champ-oss"
+	repo := "terraform-env-template"
+	expectedRows := 6
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
@@ -119,9 +119,9 @@ func actionsTest(t *testing.T, options *terraform.Options, rds *rdsdataservice.R
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
 
 	table := "workflow_runs"
-	owner := "champtitles"
-	repo := "tflint-ruleset-champtitles"
-	expectedRows := 218
+	owner := "champ-oss"
+	repo := "terraform-env-template"
+	expectedRows := 7
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
 
@@ -142,8 +142,8 @@ func terraformrefsTest(t *testing.T, options *terraform.Options, rds *rdsdataser
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
 
 	table := "terraform_refs"
-	owner := "champtitles"
-	repo := "tflint-ruleset-champtitles"
+	owner := "champ-oss"
+	repo := "terraform-env-template"
 	expectedRows := 21
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
@@ -162,8 +162,8 @@ func pullrequestsTest(t *testing.T, options *terraform.Options, rds *rdsdataserv
 	dbSecretsArn := terraform.Output(t, options, "db_secrets_arn")
 
 	table := "pull_request_commits"
-	owner := "champtitles"
-	repo := "tflint-ruleset-champtitles"
+	owner := "champ-oss"
+	repo := "terraform-env-template"
 	expectedRows := 26
 
 	defer dropTable(rds, dbName, dbArn, dbSecretsArn, table)
@@ -173,7 +173,6 @@ func pullrequestsTest(t *testing.T, options *terraform.Options, rds *rdsdataserv
 }
 
 func destroy(t *testing.T, options *terraform.Options) {
-
 	t.Log("removing grafana dashboard resources from state")
 	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_data_source.this")
 	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.status")
