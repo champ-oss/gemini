@@ -60,10 +60,7 @@ AWS services being used:
 
 
 
-## Project Structure
-### `src/`
-Contains the Go Source code
-
+## Go Code Structure
 #### `src/adapter`
 Contains any code which we need in order to interface with an external service. At present, there is an adapter implementation for interfacing with the GitHub API. 
 Additional adapter implementations could be written for Git providers such as BitBucket or GitLab.
@@ -87,8 +84,10 @@ Contains the implementation for the gorm database. The implementation currently 
 Contains the business logic for gathering each of the DevOps metrics outlined above. This code essentially connects the `adapter` code to the `repository`. 
 The `common` service is the main service for the application.
 
-### `terraform/`
-Contains the source code for deploying the application using Terraform
+
+## Terraform Code Structure
+#### `terraform/`
+Contains the Terraform module code for deploying the application.
 
 #### `terraform/examples/complete`
 Contains a working example of deploying gemini to an AWS environment. This example is also used for integration testing the application.
