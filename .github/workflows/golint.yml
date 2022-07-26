@@ -1,0 +1,16 @@
+name: golint
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  golint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: golangci/golangci-lint-action@v3.2.0
+        with:
+          args: "--out-${NO_FUTURE}format colored-line-number"
+          working-directory: src
