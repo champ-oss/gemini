@@ -1,7 +1,7 @@
 
 run:
 	docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=gemini -d mysql:5.7 || true
-	export REPOS=champtitles/tflint-ruleset-champtitles && cd src && go run cmd/main.go
+	export REPOS=champ-oss/terraform-env-template && cd src && go run cmd/main.go
 
 test:
 	cd src && go test ./...
@@ -27,3 +27,6 @@ fmt:
 tidy:
 	cd src && go mod tidy
 	cd terraform/test && go mod tidy
+
+download:
+	cd src && go mod download
