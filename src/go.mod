@@ -14,7 +14,7 @@ require (
 	github.com/migueleliasweb/go-github-mock v0.0.10
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
-	gorm.io/driver/mysql v1.3.4
+	gorm.io/driver/mysql v1.3.5
 	gorm.io/gorm v1.23.8
 )
 
@@ -30,7 +30,7 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
