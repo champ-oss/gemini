@@ -107,6 +107,13 @@ func Test_AddCommits(t *testing.T) {
 	assert.Equal(t, int64(2), inserted)
 }
 
+func Test_AddCommits_Empty(t *testing.T) {
+	repo, _ := getMockRepo()
+	inserted, err := repo.AddCommits([]*model.Commit{})
+	assert.Nil(t, err)
+	assert.Equal(t, int64(0), inserted)
+}
+
 func Test_AddWorkflowRuns(t *testing.T) {
 	repo, mock := getMockRepo()
 
@@ -119,6 +126,13 @@ func Test_AddWorkflowRuns(t *testing.T) {
 	assert.Equal(t, int64(1), inserted)
 }
 
+func Test_AddWorkflowRuns_Empty(t *testing.T) {
+	repo, _ := getMockRepo()
+	inserted, err := repo.AddWorkflowRuns([]*model.WorkflowRun{})
+	assert.Nil(t, err)
+	assert.Equal(t, int64(0), inserted)
+}
+
 func Test_AddTerraformRefs(t *testing.T) {
 	repo, mock := getMockRepo()
 
@@ -129,6 +143,13 @@ func Test_AddTerraformRefs(t *testing.T) {
 	inserted, err := repo.AddTerraformRefs([]*model.TerraformRef{TestTerraformRef})
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), inserted)
+}
+
+func Test_AddTerraformRefs_Empty(t *testing.T) {
+	repo, _ := getMockRepo()
+	inserted, err := repo.AddTerraformRefs([]*model.TerraformRef{})
+	assert.Nil(t, err)
+	assert.Equal(t, int64(0), inserted)
 }
 
 func Test_GetWorkflowRunsByName(t *testing.T) {
@@ -152,4 +173,11 @@ func Test_repository_AddPullRequestCommits(t *testing.T) {
 	inserted, err := repo.AddPullRequestCommits([]*model.PullRequestCommit{testPullRequestCommitModel})
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), inserted)
+}
+
+func Test_AddPullRequestCommits_Empty(t *testing.T) {
+	repo, _ := getMockRepo()
+	inserted, err := repo.AddPullRequestCommits([]*model.PullRequestCommit{})
+	assert.Nil(t, err)
+	assert.Equal(t, int64(0), inserted)
 }

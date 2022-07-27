@@ -57,16 +57,25 @@ func initializeDatabase(repo *repository) error {
 }
 
 func (r *repository) AddCommits(commits []*model.Commit) (inserted int64, err error) {
+	if len(commits) == 0 {
+		return 0, nil
+	}
 	result := r.db.Model(&model.Commit{}).Save(commits)
 	return result.RowsAffected, result.Error
 }
 
 func (r *repository) AddWorkflowRuns(runs []*model.WorkflowRun) (inserted int64, err error) {
+	if len(runs) == 0 {
+		return 0, nil
+	}
 	result := r.db.Model(&model.WorkflowRun{}).Save(runs)
 	return result.RowsAffected, result.Error
 }
 
 func (r *repository) AddTerraformRefs(runs []*model.TerraformRef) (inserted int64, err error) {
+	if len(runs) == 0 {
+		return 0, nil
+	}
 	result := r.db.Model(&model.TerraformRef{}).Save(runs)
 	return result.RowsAffected, result.Error
 }
@@ -81,6 +90,9 @@ func (r *repository) GetWorkflowRunsByName(owner string, repo string, branch str
 }
 
 func (r *repository) AddPullRequestCommits(pullRequests []*model.PullRequestCommit) (inserted int64, err error) {
+	if len(pullRequests) == 0 {
+		return 0, nil
+	}
 	result := r.db.Model(&model.PullRequestCommit{}).Save(pullRequests)
 	return result.RowsAffected, result.Error
 }
