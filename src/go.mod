@@ -6,7 +6,7 @@ replace github.com/google/go-github/v42 => github.com/reeves122/go-github/v42 v4
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/bradleyfalzon/ghinstallation/v2 v2.0.4
+	github.com/bradleyfalzon/ghinstallation/v2 v2.1.0
 	github.com/golang/mock v1.6.0
 	github.com/google/go-github/v42 v42.0.0
 	github.com/hashicorp/hcl/v2 v2.13.0
@@ -23,9 +23,10 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
-	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-github/v41 v41.0.0 // indirect
+	github.com/google/go-github/v45 v45.2.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f // indirect
