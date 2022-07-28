@@ -42,7 +42,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "7RhhkJsnz"
+            "uid": "Nsirlik4k"
           },
           "format": "time_series",
           "group": [],
@@ -152,7 +152,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "7RhhkJsnz"
+            "uid": "Nsirlik4k"
           },
           "format": "time_series",
           "group": [],
@@ -312,7 +312,7 @@
         {
           "datasource": {
             "type": "mysql",
-            "uid": "7RhhkJsnz"
+            "uid": "Nsirlik4k"
           },
           "format": "table",
           "group": [],
