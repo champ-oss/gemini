@@ -1,8 +1,3 @@
-variable "docker_tag" {
-  description = "Docker tag to deploy"
-  type        = string
-}
-
 variable "github_app_id" {
   description = "KMS encrypted GitHub App ID"
   type        = string

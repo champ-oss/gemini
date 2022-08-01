@@ -1,7 +1,7 @@
 data "aws_region" "this" {}
 
 locals {
-  image_app = "champtitles/gemini:${var.docker_tag}"
+  image_app = "champtitles/gemini:${module.hash.hash}"
 
   config_app = {
     DEBUG                  = var.debug ? "true" : "false"
