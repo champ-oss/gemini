@@ -1,8 +1,3 @@
-variable "docker_tag" {
-  description = "Git commit SHA of code to be deployed"
-  type        = string
-}
-
 variable "repos" {
   description = "List of Github repository names to gather data"
   type        = list(string)

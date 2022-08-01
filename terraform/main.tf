@@ -1,7 +1,7 @@
 data "aws_region" "this" {}
 
 locals {
-  image_app = "champtitles/gemini:${var.docker_tag}"
+  image_app = "champtitles/gemini:${module.hash.hash}"
 
   config_app = {
     DEBUG                  = var.debug ? "true" : "false"
@@ -30,6 +30,11 @@ locals {
     creator = "terraform"
     git     = var.git
   }
+}
+
+module "hash" {
+  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.1-552fc19"
+  path   = "${path.module}/.."
 }
 
 resource "random_string" "identifier" {
