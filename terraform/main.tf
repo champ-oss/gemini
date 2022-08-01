@@ -32,6 +32,11 @@ locals {
   }
 }
 
+module "hash" {
+  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.1-552fc19"
+  path   = path.module
+}
+
 resource "random_string" "identifier" {
   length  = 5
   special = false

@@ -33,3 +33,7 @@ output "grafana_password" {
   sensitive   = true
   value       = module.this.grafana_password
 }
+
+output "hash" {
+  value = module.this.hash
+}
