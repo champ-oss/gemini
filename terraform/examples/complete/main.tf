@@ -51,7 +51,6 @@ resource "aws_kms_ciphertext" "github_pem" {
 
 module "this" {
   source                 = "../../"
-  docker_tag             = var.docker_tag
   certificate_arn        = module.acm.arn
   github_app_id          = aws_kms_ciphertext.github_app_id.ciphertext_blob
   github_installation_id = aws_kms_ciphertext.github_installation_id.ciphertext_blob

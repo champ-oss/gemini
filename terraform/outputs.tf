@@ -60,3 +60,7 @@ output "grafana_password" {
   sensitive   = true
   value       = random_password.grafana.result
 }
+
+output "hash" {
+  value = module.hash.hash
+}
