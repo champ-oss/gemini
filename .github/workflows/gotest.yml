@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   push:
 
+permissions:
+  pull-requests: write
+  statuses: write
+  checks: write
+
 defaults:
   run:
     shell: bash
