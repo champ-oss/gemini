@@ -3,8 +3,8 @@ module github.com/champ-oss/gemini/terraform
 go 1.17
 
 require (
-	github.com/aws/aws-sdk-go v1.44.75
-	github.com/gruntwork-io/terratest v0.40.18
+	github.com/aws/aws-sdk-go v1.44.82
+	github.com/gruntwork-io/terratest v0.40.20
 	github.com/stretchr/testify v1.8.0
 )
 
