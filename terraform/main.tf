@@ -46,7 +46,7 @@ resource "random_string" "identifier" {
 }
 
 module "core" {
-  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.67-0db7e78"
+  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.75-96dfe52"
   git                         = "${var.git}-${random_string.identifier.result}"
   name                        = "${var.git}-${random_string.identifier.result}"
   vpc_id                      = var.vpc_id
@@ -60,7 +60,7 @@ module "core" {
 }
 
 module "app" {
-  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.101-67afa32"
+  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.111-ae8b03d"
   git                   = "${var.git}-${random_string.identifier.result}"
   vpc_id                = var.vpc_id
   subnets               = var.private_subnet_ids
