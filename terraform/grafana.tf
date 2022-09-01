@@ -34,7 +34,7 @@ resource "random_password" "grafana" {
 }
 
 module "grafana" {
-  source                = "github.com/champ-oss/terraform-aws-app.git?ref=v1.0.130-0bbc029"
+  source                = "github.com/champ-oss/terraform-aws-app.git?ref=v1.0.135-2adffe7"
   git                   = "${var.git}-${random_string.identifier.result}"
   vpc_id                = var.vpc_id
   subnets               = var.private_subnet_ids
