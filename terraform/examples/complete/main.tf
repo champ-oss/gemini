@@ -11,7 +11,7 @@ data "aws_route53_zone" "this" {
 }
 
 module "vpc" {
-  source                   = "github.com/champ-oss/terraform-aws-vpc.git?ref=v1.0.1-afc8890"
+  source                   = "github.com/champ-oss/terraform-aws-vpc.git?ref=v1.0.35-1462786"
   git                      = local.git
   availability_zones_count = 2
   retention_in_days        = 1
@@ -27,7 +27,7 @@ module "acm" {
 }
 
 module "kms" {
-  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.12-2dcefbc"
+  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.25-6c60322"
   git                     = local.git
   name                    = "alias/${local.git}"
   deletion_window_in_days = 7

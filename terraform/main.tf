@@ -33,7 +33,7 @@ locals {
 }
 
 module "hash" {
-  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.3-8dcf3a0"
+  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.4-0de84bc"
   path   = "${path.module}/.."
 }
 
@@ -46,7 +46,7 @@ resource "random_string" "identifier" {
 }
 
 module "core" {
-  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.84-bd10597"
+  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.88-7bf6ca4"
   git                         = "${var.git}-${random_string.identifier.result}"
   name                        = "${var.git}-${random_string.identifier.result}"
   vpc_id                      = var.vpc_id
@@ -60,7 +60,7 @@ module "core" {
 }
 
 module "app" {
-  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.135-2adffe7"
+  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.142-e36dbe7"
   git                   = "${var.git}-${random_string.identifier.result}"
   vpc_id                = var.vpc_id
   subnets               = var.private_subnet_ids
