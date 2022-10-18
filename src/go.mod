@@ -14,7 +14,7 @@ require (
 	github.com/migueleliasweb/go-github-mock v0.0.13
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
-	gorm.io/driver/mysql v1.4.1
+	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
 )
 
