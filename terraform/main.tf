@@ -46,7 +46,7 @@ resource "random_string" "identifier" {
 }
 
 module "core" {
-  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.103-4cdca03"
+  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.105-b0e284e"
   git                         = "${var.git}-${random_string.identifier.result}"
   name                        = "${var.git}-${random_string.identifier.result}"
   vpc_id                      = var.vpc_id
