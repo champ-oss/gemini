@@ -27,7 +27,7 @@ module "acm" {
 }
 
 module "kms" {
-  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.28-8a5df9c"
+  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.29-459efe0"
   git                     = local.git
   name                    = "alias/${local.git}"
   deletion_window_in_days = 7
