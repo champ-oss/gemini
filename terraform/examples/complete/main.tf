@@ -18,7 +18,7 @@ module "vpc" {
 }
 
 module "acm" {
-  source            = "github.com/champ-oss/terraform-aws-acm.git?ref=v1.0.107-369df39"
+  source            = "github.com/champ-oss/terraform-aws-acm.git?ref=v1.0.109-483b25a"
   git               = local.git
   domain_name       = "${local.git}.${data.aws_route53_zone.this.name}"
   create_wildcard   = false
@@ -27,7 +27,7 @@ module "acm" {
 }
 
 module "kms" {
-  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.28-8a5df9c"
+  source                  = "github.com/champ-oss/terraform-aws-kms.git?ref=v1.0.29-459efe0"
   git                     = local.git
   name                    = "alias/${local.git}"
   deletion_window_in_days = 7
