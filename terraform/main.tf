@@ -60,7 +60,7 @@ module "core" {
 }
 
 module "app" {
-  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.181-2e718da"
+  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.182-1f574f9"
   git                   = "${var.git}-${random_string.identifier.result}"
   vpc_id                = var.vpc_id
   subnets               = var.private_subnet_ids
