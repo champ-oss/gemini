@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20211115214459-90acf1ca460f
 	github.com/migueleliasweb/go-github-mock v0.0.13
 	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
 )
