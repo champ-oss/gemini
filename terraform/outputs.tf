@@ -5,41 +5,41 @@ output "region" {
 
 output "db_name" {
   description = "Name of database"
-  value       = aws_rds_cluster.this.database_name
+  value       = module.aurora.database_name
 }
 
 output "db_arn" {
   description = "RDS cluster ARN"
-  value       = aws_rds_cluster.this.arn
+  value       = module.aurora.arn
 }
 
 output "db_secrets_arn" {
-  depends_on  = [aws_rds_cluster.this]
+  depends_on  = [module.aurora]
   description = "AWS Secrets ARN"
   value       = aws_secretsmanager_secret.this.arn
 }
 
 output "db_endpoint" {
   description = "DNS hostname of gemini database server"
-  value       = aws_rds_cluster.this.endpoint
+  value       = module.aurora.endpoint
 }
 
 output "db_port" {
   description = "TCP port of gemini database server"
-  value       = aws_rds_cluster.this.port
+  value       = module.aurora.port
 }
 
 output "db_username" {
   description = "Username to connect to the gemini database server"
-  depends_on  = [aws_rds_cluster.this]
+  depends_on  = [module.aurora]
   value       = var.database_username
 }
 
 output "db_password" {
   description = "Password to connect to the gemini database server"
-  depends_on  = [aws_rds_cluster.this]
+  depends_on  = [module.aurora]
   sensitive   = true
-  value       = random_password.database.result
+  value       = module.aurora.master_password
 }
 
 output "grafana_dns" {

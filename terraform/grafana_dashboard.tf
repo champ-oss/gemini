@@ -29,14 +29,14 @@ resource "grafana_data_source" "this" {
   type          = "mysql"
   name          = "gemini"
   is_default    = true
-  url           = "${aws_rds_cluster.this.endpoint}:${aws_rds_cluster.this.port}"
+  url           = "${module.aurora.endpoint}:${module.aurora.port}"
   username      = var.database_username
-  password      = random_password.database.result
-  database_name = aws_rds_cluster.this.database_name
+  password      = module.aurora.master_password
+  database_name = module.aurora.database_name
   secure_json_data {
     access_key = ""
     secret_key = ""
-    password   = random_password.database.result # This is needed as setting the password above does not seem to work
+    password   = module.aurora.master_password # This is needed as setting the password above does not seem to work
   }
 }
 

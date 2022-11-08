@@ -90,12 +90,6 @@ variable "database_max_capacity" {
   default     = 1
 }
 
-variable "database_auto_pause" {
-  description = "https://www.terraform.io/docs/providers/aws/r/rds_cluster.html#auto_pause"
-  type        = bool
-  default     = true
-}
-
 variable "protect" {
   description = "Enables deletion protection on eligible resources"
   type        = bool

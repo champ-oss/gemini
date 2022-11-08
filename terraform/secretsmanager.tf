@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "this" {
-  name                    = "rds-db-credentials/${aws_rds_cluster.this.cluster_resource_id}/${var.git}-${random_string.identifier.result}"
+  name                    = "rds-db-credentials/${module.aurora.cluster_resource_id}/${var.git}-${random_string.identifier.result}"
   description             = "RDS credentials for use in query editor"
   recovery_window_in_days = 0
   tags                    = var.tags
@@ -7,14 +7,14 @@ resource "aws_secretsmanager_secret" "this" {
 
 locals {
   secret = {
-    dbInstanceIdentifier = aws_rds_cluster.this.cluster_identifier
-    engine               = aws_rds_cluster.this.engine
-    dbname               = aws_rds_cluster.this.database_name
-    host                 = aws_rds_cluster.this.endpoint
-    port                 = aws_rds_cluster.this.port
-    resourceId           = aws_rds_cluster.this.cluster_resource_id
-    username             = aws_rds_cluster.this.master_username
-    password             = random_password.database.result
+    dbInstanceIdentifier = module.aurora.cluster_identifier
+    engine               = "aurora-mysql"
+    dbname               = module.aurora.database_name
+    host                 = module.aurora.endpoint
+    port                 = module.aurora.port
+    resourceId           = module.aurora.cluster_resource_id
+    username             = module.aurora.master_username
+    password             = module.aurora.master_password
   }
 }
 
