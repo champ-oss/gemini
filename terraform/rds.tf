@@ -1,5 +1,5 @@
 module "aurora" {
-  source                    = "github.com/champ-oss/terraform-aws-aurora.git?ref=93882dab174d257c71e85ccd598cd2e7ea059365"
+  source                    = "github.com/champ-oss/terraform-aws-aurora.git?ref=eb1fa489fdae22e753fb4d0e8a5bcb1578a61298"
   private_subnet_ids        = var.private_subnet_ids
   vpc_id                    = var.vpc_id
   source_security_group_id  = module.core.ecs_app_security_group
