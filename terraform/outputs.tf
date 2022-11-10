@@ -13,12 +13,6 @@ output "db_arn" {
   value       = module.aurora.arn
 }
 
-output "db_secrets_arn" {
-  depends_on  = [module.aurora]
-  description = "AWS Secrets ARN"
-  value       = aws_secretsmanager_secret.this.arn
-}
-
 output "db_endpoint" {
   description = "DNS hostname of gemini database server"
   value       = module.aurora.endpoint
