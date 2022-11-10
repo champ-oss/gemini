@@ -173,3 +173,9 @@ variable "minutes_between_checks" {
   type        = number
   default     = 5
 }
+
+variable "cluster_instance_count" {
+  description = "Database cluster instances"
+  type        = number
+  default     = 1
+}
