@@ -87,7 +87,7 @@ variable "desired_count_grafana" {
 variable "database_max_capacity" {
   description = "https://www.terraform.io/docs/providers/aws/r/rds_cluster.html#max_capacity"
   type        = number
-  default     = 1
+  default     = 8
 }
 
 variable "protect" {
