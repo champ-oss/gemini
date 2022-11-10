@@ -13,11 +13,6 @@ output "db_arn" {
   value       = module.this.db_arn
 }
 
-output "db_secrets_arn" {
-  description = "AWS Secrets ARN"
-  value       = module.this.db_secrets_arn
-}
-
 output "grafana_dns" {
   description = "Grafana DNS hostname"
   value       = module.this.grafana_dns
