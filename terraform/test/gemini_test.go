@@ -27,10 +27,10 @@ func TestGemini(t *testing.T) {
 	grafanaPassword := terraform.Output(t, terraformOptions, "grafana_password")
 
 	// Verify that all database tables are populated with data
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "commits", 8))
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "workflow_runs", 7))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "commits", 11))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "workflow_runs", 74))
 	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "terraform_refs", 3))
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "pull_request_commits", 3))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "pull_request_commits", 7))
 }
 
 func destroy(t *testing.T, options *terraform.Options) {
