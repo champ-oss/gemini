@@ -9,7 +9,7 @@ data "aws_kms_secrets" "this" {
 provider "grafana" {
   url     = "https://${local.grafana_dns}"
   auth    = var.use_terraform_api_key ? data.aws_kms_secrets.this[0].plaintext["terraform_api_key"] : "${var.grafana_username}:${random_password.grafana.result}"
-  retries = 100
+  retries = 300
 }
 
 # This will block the creation of resources until Grafana is fully up and running
