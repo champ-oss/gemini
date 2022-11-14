@@ -6,9 +6,9 @@ locals {
   config_app = {
     DEBUG                  = var.debug ? "true" : "false"
     MINUTES_BETWEEN_CHECKS = var.minutes_between_checks
-    DB_HOST                = aws_rds_cluster.this.endpoint
-    DB_PORT                = tostring(aws_rds_cluster.this.port)
-    DB_NAME                = aws_rds_cluster.this.database_name
+    DB_HOST                = module.aurora.endpoint
+    DB_PORT                = tostring(module.aurora.port)
+    DB_NAME                = module.aurora.database_name
     DB_USERNAME            = var.database_username
     REPOS                  = join(",", var.repos)
   }

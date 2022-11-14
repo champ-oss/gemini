@@ -1,10 +1,11 @@
 package test
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/rdsdataservice"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -13,133 +14,123 @@ const (
 	RetryAttempts     = 20
 )
 
-type GrafanaQuery struct {
-	IntervalMs    int64  `json:"intervalMs"`
-	MaxDataPoints int    `json:"maxDataPoints"`
-	DatasourceId  int    `json:"datasourceId"`
-	RawSql        string `json:"rawSql"`
-	Format        string `json:"format"`
-}
-
-type GrafanaQueryRequest struct {
-	From    string          `json:"from"`
-	To      string          `json:"to"`
-	Queries []*GrafanaQuery `json:"queries"`
-}
-
-// getAWSSession Logs in to AWS and return a session
-func getAWSSession() *session.Session {
-	sess, err := session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	})
-	if err != nil {
-		panic(err)
-	}
-	return sess
-}
-
-// countRecords gets a count of records from the table and compares it to the count expected
-func countRecords(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
+func checkExpectedGrafanaTableCount(hostname, username, password, table string, minExpected int64) error {
 	for i := 0; ; i++ {
-		fmt.Printf("Getting count of rows in %s table for %s/%s\n", table, owner, repo)
-		output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
-			Database:    aws.String(dbName),
-			ResourceArn: aws.String(dbArn),
-			SecretArn:   aws.String(dbSecretsArn),
-			Sql:         aws.String(fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE owner = '%s' AND repo = '%s'", table, owner, repo)),
-		})
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			count := int(*output.Records[0][0].LongValue)
-			fmt.Println("Count: ", count)
-			if count >= minExpected {
-				return nil
-			}
+		fmt.Printf("querying Grafana to get count for table: %s\n", table)
+		count := getGrafanaTableCount(hostname, username, password, table)
+		fmt.Printf("%s table count: %d\n", table, count)
+		if count >= minExpected {
+			return nil
 		}
 
 		if i >= (RetryAttempts - 1) {
-			panic("Timed out while retrying")
+			panic("timed out while retrying")
 		}
 
-		fmt.Printf("Retrying in %d seconds...\n", RetryDelaySeconds)
+		fmt.Printf("count was less than expected. retrying in %d seconds...\n", RetryDelaySeconds)
 		time.Sleep(time.Second * RetryDelaySeconds)
 	}
 }
 
-// checkForEmptyFields checks for any records which have empty fields
-func checkForEmptyFields(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string) error {
-	fmt.Printf("Checking for count of records with empty fields in %s table\n", table)
-	query := fmt.Sprintf(`SELECT count(*) FROM %s
-                                 WHERE owner IS NULL OR owner = ''
-                                 OR repo IS NULL OR repo = ''
-                                 OR branch IS NULL OR branch = ''`, table)
-	output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
-		Database:    aws.String(dbName),
-		ResourceArn: aws.String(dbArn),
-		SecretArn:   aws.String(dbSecretsArn),
-		Sql:         aws.String(query),
-	})
-	if err != nil {
-		return err
-	}
-	count := int(*output.Records[0][0].LongValue)
-	fmt.Println("Count: ", count)
-	if count > 0 {
-		return fmt.Errorf("found %d records with empty fields", count)
-	}
-	return nil
+// getGrafanaTableCount queries grafana to return the count of records in the given table
+func getGrafanaTableCount(hostname, username, password, table string) int64 {
+	grafanaApiCountRequest := buildGrafanaApiCountRequest(table)
+	responseBody := sendGrafanaApiQueryRequest(hostname, username, password, grafanaApiCountRequest)
+	return parseGrafanaApiCountResponse(responseBody)
 }
 
-// dropTable drops a table from the database
-func dropTable(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string) error {
-	fmt.Printf("Dropping table: %s\n", table)
-	query := fmt.Sprintf(`drop table if exists %s`, table)
-	_, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
-		Database:    aws.String(dbName),
-		ResourceArn: aws.String(dbArn),
-		SecretArn:   aws.String(dbSecretsArn),
-		Sql:         aws.String(query),
-	})
-	if err != nil {
-		return err
+// buildGrafanaApiCountRequest creates a Grafana query to get a table count
+func buildGrafanaApiCountRequest(table string) []byte {
+	type GrafanaQuery struct {
+		IntervalMs    int64  `json:"intervalMs"`
+		MaxDataPoints int    `json:"maxDataPoints"`
+		DatasourceId  int    `json:"datasourceId"`
+		RawSql        string `json:"rawSql"`
+		Format        string `json:"format"`
 	}
-	return nil
+
+	type GrafanaQueryRequest struct {
+		From    string          `json:"from"`
+		To      string          `json:"to"`
+		Queries []*GrafanaQuery `json:"queries"`
+	}
+
+	queryRequest := &GrafanaQueryRequest{
+		From: "now-10y",
+		To:   "now",
+		Queries: []*GrafanaQuery{
+			{
+				IntervalMs:    int64(86400000),
+				MaxDataPoints: 1000,
+				DatasourceId:  1,
+				RawSql:        fmt.Sprintf("SELECT count(*) FROM %s", table),
+				Format:        "table",
+			},
+		},
+	}
+
+	queryRequestJson, err := json.Marshal(queryRequest)
+	if err != nil {
+		panic(err)
+	}
+	return queryRequestJson
 }
 
-func validateReruns(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, minExpected int) error {
-	fmt.Printf("Checking for count of records with empty fields in %s table\n", table)
-	query := fmt.Sprintf(`SELECT count(*) FROM %s
-                                 WHERE node_id IN (SELECT node_id FROM %s WHERE run_attempt > 1)
-                                 AND owner = "%s" AND repo = "%s"`, table, table, owner, repo)
-	output, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
-		Database:    aws.String(dbName),
-		ResourceArn: aws.String(dbArn),
-		SecretArn:   aws.String(dbSecretsArn),
-		Sql:         aws.String(query),
-	})
+// sendGrafanaApiQueryRequest creates and sends an HTTP POST request to the Grafana server and returns the response body
+func sendGrafanaApiQueryRequest(hostname, username, password string, requestBody []byte) []byte {
+	queryUrl := fmt.Sprintf("https://%s:%s@%s/api/ds/query", username, password, hostname)
+	fmt.Printf("sending HTTP POST to https://%s:%s@%s/api/ds/query\n", username, "*****", hostname)
+
+	req, err := http.NewRequest("POST", queryUrl, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return err
+		panic(err)
 	}
-	count := int(*output.Records[0][0].LongValue)
-	fmt.Println("Count: ", count)
-	if count < minExpected {
-		return fmt.Errorf("found %d rerun records. expected %d", count, minExpected)
+
+	req.Header.Add("Accept", `application/json`)
+	req.Header.Add("Content-Type", `application/json`)
+
+	c := http.Client{Timeout: time.Duration(10) * time.Second}
+	resp, err := c.Do(req)
+	if err != nil {
+		panic(err)
 	}
-	return nil
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("query returned: %s message: %s\n", resp.Status, body)
+	return body
 }
 
-// deleteRecentCommits deletes a specific number of records from the table
-func deleteRecentCommits(rds *rdsdataservice.RDSDataService, dbName string, dbArn string, dbSecretsArn string, table string, owner string, repo string, rows int) error {
-	fmt.Printf("Deleting most recent %d rows in %s table for %s/%s\n", rows, table, owner, repo)
-	_, err := rds.ExecuteStatement(&rdsdataservice.ExecuteStatementInput{
-		Database:    aws.String(dbName),
-		ResourceArn: aws.String(dbArn),
-		SecretArn:   aws.String(dbSecretsArn),
-		Sql:         aws.String(fmt.Sprintf("DELETE FROM %s WHERE OWNER = '%s' AND repo = '%s' ORDER BY committer_date DESC LIMIT %d;", table, owner, repo, rows)),
-	})
-	if err != nil {
-		return err
+// parseGrafanaApiCountResponse parses the raw Grafana API query response to return the data value
+// Example response (return value would be 256):
+// {"results":{"A":{"frames":[{"schema":{"refId":"A","meta":{"executedQueryString":"SELECT count(*) FROM commits"},
+// "fields":[{"name":"count(*)","type":"number","typeInfo":{"frame":"int64","nullable":true}}]},"data":{"values":[[256]]}}]}}}
+func parseGrafanaApiCountResponse(apiResponseBody []byte) int64 {
+	var grafanaQueryResponse struct {
+		Results struct {
+			A struct {
+				Frames []struct {
+					Data struct {
+						Values [][]int64
+					}
+				}
+			}
+		}
 	}
-	return nil
+
+	if err := json.Unmarshal(apiResponseBody, &grafanaQueryResponse); err != nil {
+		panic(err)
+	}
+	if len(grafanaQueryResponse.Results.A.Frames) == 0 {
+		return 0
+	}
+	if len(grafanaQueryResponse.Results.A.Frames[0].Data.Values) == 0 {
+		return 0
+	}
+	if len(grafanaQueryResponse.Results.A.Frames[0].Data.Values[0]) == 0 {
+		return 0
+	}
+	return grafanaQueryResponse.Results.A.Frames[0].Data.Values[0][0]
 }
