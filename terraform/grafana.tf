@@ -1,6 +1,6 @@
 locals {
   config_grafana = {
-    GF_DATABASE_HOST                     = aws_rds_cluster.this.endpoint
+    GF_DATABASE_HOST                     = module.aurora.reader_endpoint
     GF_DATABASE_TYPE                     = "mysql"
     GF_DATABASE_USER                     = var.database_username
     GF_SECURITY_ADMIN_USER               = var.grafana_username

@@ -87,13 +87,7 @@ variable "desired_count_grafana" {
 variable "database_max_capacity" {
   description = "https://www.terraform.io/docs/providers/aws/r/rds_cluster.html#max_capacity"
   type        = number
-  default     = 1
-}
-
-variable "database_auto_pause" {
-  description = "https://www.terraform.io/docs/providers/aws/r/rds_cluster.html#auto_pause"
-  type        = bool
-  default     = true
+  default     = 8
 }
 
 variable "protect" {
@@ -178,4 +172,10 @@ variable "minutes_between_checks" {
   description = "How often Gemini should poll for Github data"
   type        = number
   default     = 5
+}
+
+variable "cluster_instance_count" {
+  description = "Database cluster instances"
+  type        = number
+  default     = 1
 }
