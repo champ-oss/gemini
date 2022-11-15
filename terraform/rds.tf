@@ -13,5 +13,5 @@ module "aurora" {
   skip_final_snapshot       = false
   git                       = var.git
   max_capacity              = var.database_max_capacity
-  metric_alarms_enabled     = true
+  metric_alarms_enabled     = var.metric_alarms_enabled
 }

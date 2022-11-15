@@ -179,3 +179,9 @@ variable "cluster_instance_count" {
   type        = number
   default     = 1
 }
+
+variable "metric_alarms_enabled" {
+  description = "enable or disable cloudwatch metric alarms for aurora"
+  type        = bool
+  default     = true
+}
