@@ -67,7 +67,10 @@ func getMockRepo() (repository, sqlmock.Sqlmock) {
 }
 
 func Test_NewRepository(t *testing.T) {
-	_, err := NewRepository("", "", "", "", "", false)
+	repo, _ := getMockRepo()
+	_, err := NewRepository("", "", "", "", "", true, repo.db)
+	assert.Error(t, err)
+	_, err = NewRepository("", "", "", "", "", true, nil)
 	assert.Error(t, err)
 }
 
