@@ -28,12 +28,13 @@ func TestGemini(t *testing.T) {
 	grafanaDns := terraform.Output(t, terraformOptions, "grafana_dns")
 	grafanaUsername := terraform.Output(t, terraformOptions, "grafana_username")
 	grafanaPassword := terraform.Output(t, terraformOptions, "grafana_password")
+	grafanaDataSourceId := terraform.Output(t, terraformOptions, "grafana_data_source_id")
 
 	// Verify that all database tables are populated with data
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "commits", 11))
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "workflow_runs", 74))
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "terraform_refs", 3))
-	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "pull_request_commits", 7))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "commits", grafanaDataSourceId, 11))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "workflow_runs", grafanaDataSourceId, 74))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "terraform_refs", grafanaDataSourceId, 3))
+	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "pull_request_commits", grafanaDataSourceId, 7))
 }
 
 func destroy(t *testing.T, options *terraform.Options) {
