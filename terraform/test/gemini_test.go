@@ -37,11 +37,14 @@ func TestGemini(t *testing.T) {
 }
 
 func destroy(t *testing.T, options *terraform.Options) {
-	t.Log("removing grafana dashboard resources from state")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_data_source.this")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.status")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.deployment_frequency")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.change_failures")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.lead_time_for_changes")
-	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.time_to_restore")
+	targetedOptions := options
+	targetedOptions.Targets = []string{
+		"module.this.grafana_data_source.this",
+		"module.this.grafana_dashboard.status",
+		"module.this.grafana_dashboard.deployment_frequency",
+		"module.this.grafana_dashboard.change_failures",
+		"module.this.grafana_dashboard.lead_time_for_changes",
+		"module.this.grafana_dashboard.time_to_restore",
+	}
+	terraform.Destroy(t, targetedOptions)
 }
