@@ -32,3 +32,8 @@ output "grafana_password" {
 output "hash" {
   value = module.this.hash
 }
+
+output "grafana_data_source_id" {
+  description = "https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source#id"
+  value       = module.this.grafana_data_source_id
+}
