@@ -36,7 +36,7 @@ func NewRepository(username, password, hostname, port, database string, dropTabl
 		db,
 	}
 
-	if dropTables {
+	if dropTables == true {
 		log.Warn("Dropping existing database tables")
 		dropDatabaseTables(repo)
 	}
