@@ -12,8 +12,11 @@ func TestGemini(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := &terraform.Options{
-		TerraformDir:  "../examples/complete",
-		BackendConfig: map[string]interface{}{},
+		TerraformDir: "../examples/complete",
+		BackendConfig: map[string]interface{}{
+			"bucket": os.Getenv("TF_STATE_BUCKET"),
+			"key":    os.Getenv("TF_VAR_git"),
+		},
 		Vars: map[string]interface{}{
 			"github_app_id":          os.Getenv("APP_ID"),
 			"github_installation_id": os.Getenv("INSTALLATION_ID"),
@@ -41,7 +44,4 @@ func destroy(t *testing.T, options *terraform.Options) {
 	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.change_failures")
 	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.lead_time_for_changes")
 	_, _ = terraform.RunTerraformCommandE(t, options, "state", "rm", "module.this.grafana_dashboard.time_to_restore")
-
-	t.Log("Running Terraform Destroy")
-	terraform.Destroy(t, options)
 }

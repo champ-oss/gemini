@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-1"
+  region = "us-east-2"
 }
 
 locals {
@@ -10,11 +10,34 @@ data "aws_route53_zone" "this" {
   name = "oss.champtest.net."
 }
 
-module "vpc" {
-  source                   = "github.com/champ-oss/terraform-aws-vpc.git?ref=v1.0.39-9596bfc"
-  git                      = local.git
-  availability_zones_count = 2
-  retention_in_days        = 1
+data "aws_vpcs" "this" {
+  tags = {
+    purpose = "vega"
+  }
+}
+
+data "aws_subnets" "private" {
+  tags = {
+    purpose = "vega"
+    Type    = "Private"
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpcs.this.ids[0]]
+  }
+}
+
+data "aws_subnets" "public" {
+  tags = {
+    purpose = "vega"
+    Type    = "Public"
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpcs.this.ids[0]]
+  }
 }
 
 module "acm" {
@@ -55,9 +78,9 @@ module "this" {
   github_app_id          = aws_kms_ciphertext.github_app_id.ciphertext_blob
   github_installation_id = aws_kms_ciphertext.github_installation_id.ciphertext_blob
   github_pem             = aws_kms_ciphertext.github_pem.ciphertext_blob
-  private_subnet_ids     = module.vpc.private_subnets_ids
-  public_subnet_ids      = module.vpc.public_subnets_ids
-  vpc_id                 = module.vpc.vpc_id
+  private_subnet_ids     = data.aws_subnets.private.ids
+  public_subnet_ids      = data.aws_subnets.public.ids
+  vpc_id                 = data.aws_vpcs.this.ids[0]
   domain                 = data.aws_route53_zone.this.name
   zone_id                = data.aws_route53_zone.this.zone_id
   protect                = false

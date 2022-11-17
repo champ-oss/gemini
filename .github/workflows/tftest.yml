@@ -13,6 +13,7 @@ concurrency: tftest
 env:
   TF_INPUT: false
   TF_IN_AUTOMATION: true
+  TF_STATE_BUCKET: "env-tfbackend-oss-backend"
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -46,5 +47,6 @@ jobs:
 
       - name: Terratest
         run: |
+          export TF_VAR_git=`echo ${GITHUB_REPOSITORY} | sed -e 's|.*/||'`
           go mod download
           go test -v -timeout 90m
