@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -14,10 +15,10 @@ const (
 	RetryAttempts     = 20
 )
 
-func checkExpectedGrafanaTableCount(hostname, username, password, table string, minExpected int64) error {
+func checkExpectedGrafanaTableCount(hostname, username, password, table, dataSourceId string, minExpected int64) error {
 	for i := 0; ; i++ {
 		fmt.Printf("querying Grafana to get count for table: %s\n", table)
-		count := getGrafanaTableCount(hostname, username, password, table)
+		count := getGrafanaTableCount(hostname, username, password, table, dataSourceId)
 		fmt.Printf("%s table count: %d\n", table, count)
 		if count >= minExpected {
 			return nil
@@ -33,14 +34,14 @@ func checkExpectedGrafanaTableCount(hostname, username, password, table string, 
 }
 
 // getGrafanaTableCount queries grafana to return the count of records in the given table
-func getGrafanaTableCount(hostname, username, password, table string) int64 {
-	grafanaApiCountRequest := buildGrafanaApiCountRequest(table)
+func getGrafanaTableCount(hostname, username, password, table, dataSourceId string) int64 {
+	grafanaApiCountRequest := buildGrafanaApiCountRequest(table, dataSourceId)
 	responseBody := sendGrafanaApiQueryRequest(hostname, username, password, grafanaApiCountRequest)
 	return parseGrafanaApiCountResponse(responseBody)
 }
 
 // buildGrafanaApiCountRequest creates a Grafana query to get a table count
-func buildGrafanaApiCountRequest(table string) []byte {
+func buildGrafanaApiCountRequest(table, dataSourceId string) []byte {
 	type GrafanaQuery struct {
 		IntervalMs    int64  `json:"intervalMs"`
 		MaxDataPoints int    `json:"maxDataPoints"`
@@ -55,6 +56,11 @@ func buildGrafanaApiCountRequest(table string) []byte {
 		Queries []*GrafanaQuery `json:"queries"`
 	}
 
+	dataSourceIdInt, err := strconv.Atoi(dataSourceId)
+	if err != nil {
+		panic(err)
+	}
+
 	queryRequest := &GrafanaQueryRequest{
 		From: "now-10y",
 		To:   "now",
@@ -62,7 +68,7 @@ func buildGrafanaApiCountRequest(table string) []byte {
 			{
 				IntervalMs:    int64(86400000),
 				MaxDataPoints: 1000,
-				DatasourceId:  1,
+				DatasourceId:  dataSourceIdInt,
 				RawSql:        fmt.Sprintf("SELECT count(*) FROM %s", table),
 				Format:        "table",
 			},
