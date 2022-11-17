@@ -11,6 +11,7 @@ locals {
     DB_NAME                = module.aurora.database_name
     DB_USERNAME            = var.database_username
     REPOS                  = join(",", var.repos)
+    DROP_TABLES            = var.drop_tables ? "true" : "false"
   }
 
   secrets = {
