@@ -10,7 +10,7 @@ import (
 func main() {
 	config := cfg.LoadConfig()
 
-	repo, err := repository.NewRepository(config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
+	repo, err := repository.NewRepository(config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbName, config.DropTables, nil)
 	if err != nil {
 		panic(err)
 	}

@@ -21,21 +21,27 @@ type repository struct {
 }
 
 // NewRepository initializes a new repository
-func NewRepository(username string, password string, hostname string, port string, database string) (*repository, error) {
-	log.WithFields(log.Fields{"username": username, "hostname": hostname, "port": port, "database": database}).
-		Info("Connecting to database")
-
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, hostname, port, database)
-	db, err := gorm.Open(mysql.Open(dataSource), &gorm.Config{})
-	if err != nil {
-		return nil, err
+func NewRepository(username, password, hostname, port, database string, dropTables bool, db *gorm.DB) (*repository, error) {
+	if db == nil {
+		log.WithFields(log.Fields{"username": username, "hostname": hostname, "port": port, "database": database}).Info("Connecting to database")
+		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, hostname, port, database)
+		var err error
+		db, err = gorm.Open(mysql.Open(dataSource), &gorm.Config{})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	repo := &repository{
 		db,
 	}
 
-	err = initializeDatabase(repo)
+	if dropTables {
+		log.Warn("Dropping existing database tables")
+		dropDatabaseTables(repo)
+	}
+
+	err := initializeDatabase(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +60,13 @@ func initializeDatabase(repo *repository) error {
 		return err
 	}
 	return nil
+}
+
+func dropDatabaseTables(repo *repository) {
+	_ = repo.db.Migrator().DropTable(&model.Commit{})
+	_ = repo.db.Migrator().DropTable(&model.WorkflowRun{})
+	_ = repo.db.Migrator().DropTable(&model.TerraformRef{})
+	_ = repo.db.Migrator().DropTable(&model.PullRequestCommit{})
 }
 
 func (r *repository) AddCommits(commits []*model.Commit) (inserted int64, err error) {
