@@ -21,7 +21,7 @@ type repository struct {
 }
 
 // NewRepository initializes a new repository
-func NewRepository(username string, password string, hostname string, port string, database string) (*repository, error) {
+func NewRepository(username string, password string, hostname string, port string, database string, dropTables bool) (*repository, error) {
 	log.WithFields(log.Fields{"username": username, "hostname": hostname, "port": port, "database": database}).
 		Info("Connecting to database")
 
@@ -33,6 +33,13 @@ func NewRepository(username string, password string, hostname string, port strin
 
 	repo := &repository{
 		db,
+	}
+
+	if dropTables {
+		log.Warn("Dropping existing database tables")
+		if err := dropDatabaseTables(repo); err != nil {
+			return nil, err
+		}
 	}
 
 	err = initializeDatabase(repo)
@@ -51,6 +58,22 @@ func initializeDatabase(repo *repository) error {
 		&model.PullRequestCommit{},
 	)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func dropDatabaseTables(repo *repository) error {
+	if err := repo.db.Migrator().DropTable(&model.Commit{}); err != nil {
+		return err
+	}
+	if err := repo.db.Migrator().DropTable(&model.WorkflowRun{}); err != nil {
+		return err
+	}
+	if err := repo.db.Migrator().DropTable(&model.TerraformRef{}); err != nil {
+		return err
+	}
+	if err := repo.db.Migrator().DropTable(&model.PullRequestCommit{}); err != nil {
 		return err
 	}
 	return nil

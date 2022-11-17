@@ -185,3 +185,9 @@ variable "metric_alarms_enabled" {
   type        = bool
   default     = true
 }
+
+variable "drop_tables" {
+  description = "Drop database tables at startup (for testing)"
+  type        = bool
+  default     = false
+}

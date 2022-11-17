@@ -91,6 +91,7 @@ module "this" {
   grafana_force_oauth    = false
   use_terraform_api_key  = false
   minutes_between_checks = 0.25
+  drop_tables            = true
   repos = [
     "champ-oss/terraform-env-template"
   ]

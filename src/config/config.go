@@ -21,6 +21,7 @@ type Config struct {
 	DbPassword           string
 	DbName               string
 	MinutesBetweenChecks float64
+	DropTables           bool
 }
 
 // LoadConfig loads configuration values from environment variables
@@ -41,6 +42,7 @@ func LoadConfig() *Config {
 		DbPassword:           parseString("DB_PASSWORD", "secret"),
 		DbName:               parseString("DB_NAME", "gemini"),
 		MinutesBetweenChecks: parseFloat("MINUTES_BETWEEN_CHECKS", 5),
+		DropTables:           parseBool("DROP_TABLES", false),
 	}
 
 	if config.Debug {
