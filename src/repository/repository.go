@@ -37,9 +37,7 @@ func NewRepository(username string, password string, hostname string, port strin
 
 	if dropTables {
 		log.Warn("Dropping existing database tables")
-		if err := dropDatabaseTables(repo); err != nil {
-			return nil, err
-		}
+		dropDatabaseTables(repo)
 	}
 
 	err = initializeDatabase(repo)
@@ -63,20 +61,11 @@ func initializeDatabase(repo *repository) error {
 	return nil
 }
 
-func dropDatabaseTables(repo *repository) error {
-	if err := repo.db.Migrator().DropTable(&model.Commit{}); err != nil {
-		return err
-	}
-	if err := repo.db.Migrator().DropTable(&model.WorkflowRun{}); err != nil {
-		return err
-	}
-	if err := repo.db.Migrator().DropTable(&model.TerraformRef{}); err != nil {
-		return err
-	}
-	if err := repo.db.Migrator().DropTable(&model.PullRequestCommit{}); err != nil {
-		return err
-	}
-	return nil
+func dropDatabaseTables(repo *repository) {
+	_ = repo.db.Migrator().DropTable(&model.Commit{})
+	_ = repo.db.Migrator().DropTable(&model.WorkflowRun{})
+	_ = repo.db.Migrator().DropTable(&model.TerraformRef{})
+	_ = repo.db.Migrator().DropTable(&model.PullRequestCommit{})
 }
 
 func (r *repository) AddCommits(commits []*model.Commit) (inserted int64, err error) {

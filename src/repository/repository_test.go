@@ -112,8 +112,7 @@ func Test_DropDatabaseTables(t *testing.T) {
 	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 0;").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("DROP TABLE IF EXISTS `pull_request_commits` CASCADE").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 1;").WillReturnResult(sqlmock.NewResult(0, 0))
-	err := dropDatabaseTables(&repo)
-	assert.Nil(t, err)
+	dropDatabaseTables(&repo)
 }
 
 func Test_AddCommits(t *testing.T) {
