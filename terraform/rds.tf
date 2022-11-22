@@ -1,5 +1,5 @@
 module "aurora" {
-  source                    = "github.com/champ-oss/terraform-aws-aurora.git?ref=v1.0.17-2b28af2"
+  source                    = "github.com/champ-oss/terraform-aws-aurora.git?ref=v1.0.21-5b86e30"
   private_subnet_ids        = var.private_subnet_ids
   vpc_id                    = var.vpc_id
   source_security_group_id  = module.core.ecs_app_security_group
@@ -13,5 +13,5 @@ module "aurora" {
   skip_final_snapshot       = false
   git                       = var.git
   max_capacity              = var.database_max_capacity
-  metric_alarms_enabled     = true
+  metric_alarms_enabled     = var.metric_alarms_enabled
 }

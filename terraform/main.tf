@@ -11,6 +11,7 @@ locals {
     DB_NAME                = module.aurora.database_name
     DB_USERNAME            = var.database_username
     REPOS                  = join(",", var.repos)
+    DROP_TABLES            = var.drop_tables ? "true" : "false"
   }
 
   secrets = {
@@ -33,7 +34,7 @@ locals {
 }
 
 module "hash" {
-  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.7-a6cdffc"
+  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.8-860b26d"
   path   = "${path.module}/.."
 }
 
@@ -46,7 +47,7 @@ resource "random_string" "identifier" {
 }
 
 module "core" {
-  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.108-a459575"
+  source                      = "github.com/champ-oss/terraform-aws-core.git?ref=v1.0.109-3364502"
   git                         = "${var.git}-${random_string.identifier.result}"
   name                        = "${var.git}-${random_string.identifier.result}"
   vpc_id                      = var.vpc_id
@@ -60,7 +61,7 @@ module "core" {
 }
 
 module "app" {
-  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.183-d732604"
+  source                = "github.com/champ-oss/terraform-aws-app?ref=v1.0.185-1149846"
   git                   = "${var.git}-${random_string.identifier.result}"
   vpc_id                = var.vpc_id
   subnets               = var.private_subnet_ids

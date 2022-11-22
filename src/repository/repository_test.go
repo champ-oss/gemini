@@ -67,7 +67,10 @@ func getMockRepo() (repository, sqlmock.Sqlmock) {
 }
 
 func Test_NewRepository(t *testing.T) {
-	_, err := NewRepository("", "", "", "", "")
+	repo, _ := getMockRepo()
+	_, err := NewRepository("", "", "", "", "", true, repo.db)
+	assert.Error(t, err)
+	_, err = NewRepository("", "", "", "", "", true, nil)
 	assert.Error(t, err)
 }
 
@@ -93,6 +96,26 @@ func Test_InitializeDatabase_Error(t *testing.T) {
 	mock.ExpectQuery("SELECT SCHEMA_NAME from Information_schema.SCHEMATA").WillReturnRows(sqlmock.NewRows([]string{}))
 	mock.ExpectExec("CREATE TABLE `commits`").WillReturnError(fmt.Errorf("test error"))
 	assert.Error(t, initializeDatabase(&repo))
+}
+
+func Test_DropDatabaseTables(t *testing.T) {
+	repo, mock := getMockRepo()
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 0;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DROP TABLE IF EXISTS `commits` CASCADE").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 1;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 0;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DROP TABLE IF EXISTS `workflow_runs` CASCADE").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 1;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 0;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DROP TABLE IF EXISTS `terraform_refs` CASCADE").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 1;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 0;").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DROP TABLE IF EXISTS `pull_request_commits` CASCADE").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("SET FOREIGN_KEY_CHECKS = 1;").WillReturnResult(sqlmock.NewResult(0, 0))
+	dropDatabaseTables(&repo)
 }
 
 func Test_AddCommits(t *testing.T) {

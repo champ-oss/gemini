@@ -179,3 +179,15 @@ variable "cluster_instance_count" {
   type        = number
   default     = 1
 }
+
+variable "metric_alarms_enabled" {
+  description = "enable or disable cloudwatch metric alarms for aurora"
+  type        = bool
+  default     = true
+}
+
+variable "drop_tables" {
+  description = "Drop database tables at startup (for testing)"
+  type        = bool
+  default     = false
+}
