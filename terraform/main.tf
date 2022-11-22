@@ -34,7 +34,7 @@ locals {
 }
 
 module "hash" {
-  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.7-a6cdffc"
+  source = "github.com/champ-oss/terraform-git-hash.git?ref=v1.0.8-860b26d"
   path   = "${path.module}/.."
 }
 
