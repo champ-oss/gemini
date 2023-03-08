@@ -24,6 +24,15 @@ func TestGemini(t *testing.T) {
 		},
 	}
 	terraform.Init(t, terraformOptions)
+	
+	t.Log("removing grafana dashboard resources from state")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_data_source.this")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_dashboard.status")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_dashboard.deployment_frequency")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_dashboard.change_failures")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_dashboard.lead_time_for_changes")
+	_, _ = terraform.RunTerraformCommandE(t, terraformOptions, "state", "rm", "module.this.grafana_dashboard.time_to_restore")
+	
 	terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
 	grafanaDns := terraform.Output(t, terraformOptions, "grafana_dns")
