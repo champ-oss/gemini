@@ -48,4 +48,7 @@ func destroy(t *testing.T, options *terraform.Options) {
 		"module.this.grafana_dashboard.time_to_restore",
 	}
 	terraform.Destroy(t, targetedOptions)
+	
+	// Run full destroy
+	terraform.Destroy(t, options)
 }
