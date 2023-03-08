@@ -23,7 +23,8 @@ func TestGemini(t *testing.T) {
 			"github_pem":             os.Getenv("PEM"),
 		},
 	}
-	defer terraform.Destroy(t, terraformOptions)
+	terraform.Init(t, terraformOptions)
+	terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
 	grafanaDns := terraform.Output(t, terraformOptions, "grafana_dns")
 	grafanaUsername := terraform.Output(t, terraformOptions, "grafana_username")
