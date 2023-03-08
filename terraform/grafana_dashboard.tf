@@ -13,6 +13,7 @@ provider "grafana" {
 }
 
 resource "grafana_data_source" "this" {
+  depends_on    = [module.grafana]
   type          = "mysql"
   name          = "gemini"
   is_default    = true
