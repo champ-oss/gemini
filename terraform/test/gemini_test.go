@@ -23,7 +23,7 @@ func TestGemini(t *testing.T) {
 			"github_pem":             os.Getenv("PEM"),
 		},
 	}
-	defer destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
 	grafanaDns := terraform.Output(t, terraformOptions, "grafana_dns")
 	grafanaUsername := terraform.Output(t, terraformOptions, "grafana_username")
@@ -35,20 +35,4 @@ func TestGemini(t *testing.T) {
 	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "workflow_runs", grafanaDataSourceId, 74))
 	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "terraform_refs", grafanaDataSourceId, 3))
 	assert.NoError(t, checkExpectedGrafanaTableCount(grafanaDns, grafanaUsername, grafanaPassword, "pull_request_commits", grafanaDataSourceId, 7))
-}
-
-func destroy(t *testing.T, options *terraform.Options) {
-	targetedOptions := options
-	targetedOptions.Targets = []string{
-		"module.this.grafana_data_source.this",
-		"module.this.grafana_dashboard.status",
-		"module.this.grafana_dashboard.deployment_frequency",
-		"module.this.grafana_dashboard.change_failures",
-		"module.this.grafana_dashboard.lead_time_for_changes",
-		"module.this.grafana_dashboard.time_to_restore",
-	}
-	terraform.Destroy(t, targetedOptions)
-	
-	// Run full destroy
-	terraform.Destroy(t, options)
 }
