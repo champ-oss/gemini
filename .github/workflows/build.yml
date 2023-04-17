@@ -1,4 +1,4 @@
-name: gobuild
+name: build
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ env:
   DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
 
 jobs:
-  gobuild:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,9 +23,12 @@ jobs:
           password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
+          cache-from: type=registry,ref=${{ env.REPO }}:latest
+          cache-to: type=inline
           tags: |
             ${{ env.REPO }}:${{ env.SHA }}
+            ${{ env.REPO }}:latest
