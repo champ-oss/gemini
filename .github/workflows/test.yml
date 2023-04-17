@@ -1,4 +1,4 @@
-name: tftest
+name: test
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
     branches-ignore:
       - main
 
-concurrency: tftest
+concurrency: test
 
 env:
   TF_INPUT: false
@@ -21,31 +21,30 @@ env:
   MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
   MONGODB_ATLAS_ORG: ${{ secrets.MONGODB_ATLAS_ORG }}
   SLACK_URL: ${{ secrets.SLACK_URL }}
-  APP_ID: ${{ secrets.APP_ID }}
-  INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
-  PEM: ${{ secrets.PEM }}
-
-defaults:
-  run:
-    shell: bash
-    working-directory: terraform/test
 
 jobs:
-  tftest:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - uses: hashicorp/setup-terraform@v2.0.3
+      - uses: hashicorp/setup-terraform@v2.0.3 # https://github.com/hashicorp/setup-terraform/releases
         with:
-          terraform_version: 1.3.5
+          terraform_version: 1.3.5 # https://github.com/hashicorp/terraform/releases
           terraform_wrapper: false
 
       - uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
+
+      - name: go test
+        if: always()
+        working-directory: src
+        run: go test ./...
 
       - name: Terratest
+        if: always()
+        working-directory: terraform/test
         run: |
           export TF_VAR_git=`echo ${GITHUB_REPOSITORY} | sed -e 's|.*/||'`
           go mod download
