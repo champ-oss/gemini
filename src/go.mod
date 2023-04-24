@@ -11,7 +11,7 @@ require (
 	github.com/google/go-github/v42 v42.0.0
 	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20211115214459-90acf1ca460f
-	github.com/migueleliasweb/go-github-mock v0.0.16
+	github.com/migueleliasweb/go-github-mock v0.0.17
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	gorm.io/driver/mysql v1.5.0
