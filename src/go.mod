@@ -9,7 +9,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.4.0
 	github.com/golang/mock v1.6.0
 	github.com/google/go-github/v42 v42.0.0
-	github.com/hashicorp/hcl/v2 v2.16.2
+	github.com/hashicorp/hcl/v2 v2.18.0
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20211115214459-90acf1ca460f
 	github.com/migueleliasweb/go-github-mock v0.0.17
 	github.com/sirupsen/logrus v1.9.0
@@ -22,6 +22,7 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
@@ -37,12 +38,12 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/zclconf/go-cty v1.12.1 // indirect
+	github.com/zclconf/go-cty v1.13.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
